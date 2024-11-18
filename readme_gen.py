@@ -57,7 +57,8 @@ def generate_readme(directory):
         folder_rel_path = os.path.relpath(folder_path, root_dir)
         folder_url = base_url + encode_url(folder_rel_path)
         folder_icon_url = "https://cdn-icons-png.flaticon.com/512/148/148947.png"
-        md_content += f"[![Folder Icon]({folder_icon_url}) **{folder}**]({folder_url}/README.md)\n\n"
+        md_content += f'[<img src="{folder_icon_url}" alt="Folder Icon" style="max-width: 180; max-height: 180;">]({folder_url}/README.md)<br>**{folder}**\n\n'
+        # md_content += f"[![Folder Icon]({folder_icon_url}) **{folder}**]({folder_url}/README.md)\n\n"
         # Recursively generate README for the subfolder
         generate_readme(folder_path)
 
@@ -71,7 +72,10 @@ def generate_readme(directory):
         size_str = (
             f"{file_size:.2f} KB" if file_size < 1024 else f"{file_size / 1024:.2f} MB"
         )
-        items.append(f"![{file}]({file_url})<br>**{file}**<br>{size_str}")
+        items.append(
+            f'[<img src="{file_url}" alt="{file}" style="max-width: 180; max-height: 180;">]({file_url})<br>**{file}**<br>{size_str}'
+        )
+        # items.append(f"![{file}]({file_url})<br>**{file}**<br>{size_str}")
 
     # Add files to the Markdown table
     if items:
