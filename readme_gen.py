@@ -31,42 +31,51 @@ def generate_readme(directory):
     # Start with a Markdown heading
     md_content = f"# {os.path.basename(directory)}\n\n"
 
+    # Separate and sort folders and files (case-insensitive)
+    folders = sorted(
+        [
+            item
+            for item in os.listdir(directory)
+            if os.path.isdir(os.path.join(directory, item)) and not item.startswith(".")
+        ],
+        key=str.lower,  # Sort ignoring case
+    )
+    files = sorted(
+        [
+            item
+            for item in os.listdir(directory)
+            if os.path.isfile(os.path.join(directory, item))
+            and not item.startswith(".")
+            and item.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".svg"))
+        ],
+        key=str.lower,  # Sort ignoring case
+    )
+
+    # Add folders to the Markdown content
+    for folder in folders:
+        folder_path = os.path.join(directory, folder)
+        folder_rel_path = os.path.relpath(folder_path, root_dir)
+        folder_url = base_url + encode_url(folder_rel_path)
+        folder_icon_url = "https://cdn-icons-png.flaticon.com/512/148/148947.png"
+        md_content += f"[![Folder Icon]({folder_icon_url}) **{folder}**]({folder_url}/README.md)\n\n"
+        # Recursively generate README for the subfolder
+        generate_readme(folder_path)
+
+    # Add files to the Markdown content
     items = []
+    for file in files:
+        file_path = os.path.join(directory, file)
+        file_rel_path = os.path.relpath(file_path, root_dir)
+        file_url = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/{GITHUB_REF_NAME}/{encode_url(file_rel_path)}"
+        file_size = os.path.getsize(file_path) / 1024  # Size in KB
+        size_str = (
+            f"{file_size:.2f} KB" if file_size < 1024 else f"{file_size / 1024:.2f} MB"
+        )
+        items.append(f"![{file}]({file_url})<br>**{file}**<br>{size_str}")
 
-    for item in os.listdir(directory):
-        # Skip hidden files and directories
-        if item.startswith("."):
-            print(f"Skipping hidden item: {item}")
-            continue
-
-        item_path = os.path.join(directory, item)
-        rel_item_path = os.path.relpath(item_path, root_dir)
-
-        if os.path.isdir(item_path):
-            # Folder representation
-            folder_url = base_url + encode_url(rel_item_path)
-            folder_icon_url = "https://cdn-icons-png.flaticon.com/512/148/148947.png"
-            items.append(
-                f"[![Folder Icon]({folder_icon_url}) **{item}**]({folder_url}/README.md)"
-            )
-            # Recursively generate README for the subfolder
-            generate_readme(item_path)
-
-        elif os.path.isfile(item_path) and item.lower().endswith(
-            (".png", ".jpg", ".jpeg", ".gif", ".svg")
-        ):
-            # File representation with raw.githubusercontent.com link
-            file_url = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/{GITHUB_REF_NAME}/{encode_url(rel_item_path)}"
-            file_size = os.path.getsize(item_path) / 1024  # Size in KB
-            size_str = (
-                f"{file_size:.2f} KB"
-                if file_size < 1024
-                else f"{file_size / 1024:.2f} MB"
-            )
-            items.append(f"![{item}]({file_url})<br>**{item}**<br>{size_str}")
-
-    # Create a Markdown table with 3 columns
-    md_content += create_table(items, columns=4)
+    # Add files to the Markdown table
+    if items:
+        md_content += create_table(items, columns=4)
 
     # Write the README file
     with open(readme_path, "w") as f:
