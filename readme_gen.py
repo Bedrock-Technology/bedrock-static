@@ -89,7 +89,7 @@ def generate_readme(directory):
             (".png", ".jpg", ".jpeg", ".gif", ".svg")
         ):
             # File representation with raw.githubusercontent.com link
-            file_url = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/{GITHUB_REF_NAME}/{rel_item_path.replace('\\', '/')}"
+            file_url = f"https://raw.githubusercontent.com/{GITHUB_REPOSITORY}/{GITHUB_REF_NAME}/{rel_item_path.replace(os.sep, '/')}"
             file_size = os.path.getsize(item_path) / 1024  # Size in KB
             size_str = (
                 f"{file_size:.2f} KB"
