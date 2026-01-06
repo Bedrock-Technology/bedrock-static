@@ -32,6 +32,14 @@ jobs:
       - name: Run image compression
         run: pnpm compress
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run readme generator
+        run: python readme_gen.py
+
       - name: Check for changes
         id: git-check
         run: |
@@ -43,5 +51,5 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add -A
-          git commit -m "🗜️ Auto-compress images"
+          git commit -m "🗜️ Auto-compress images & update README"
           git push
