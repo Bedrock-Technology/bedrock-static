@@ -52,4 +52,5 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add -A
           git commit -m "🗜️ Auto-compress images & update README"
+          git pull --rebase
           git push
