@@ -1,0 +1,49 @@
+name: Compress Images
+
+on:
+  push:
+    paths:
+      - "**.png"
+      - "**.jpg"
+      - "**.jpeg"
+      - "**.webp"
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run image compression
+        run: pnpm compress
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit compressed images
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git commit -m "🗜️ Auto-compress images"
+          git push
